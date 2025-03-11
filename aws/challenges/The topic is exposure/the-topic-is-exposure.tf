@@ -48,27 +48,26 @@ resource "aws_iam_role_policy_attachment" "sns_publish_policy_attachment" {
 resource "aws_sns_topic_policy" "schedule-event-policy" {
   arn = aws_sns_topic.eventbridge_sns.arn
 
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Id": "snspolicy",
-  "Statement": [
-    {
-      "Sid": "First",
-      "Effect": "Allow",
-      "Principal": "*",
-      "Action": ["sns:Subscribe", "sns:Publish"],
-      "Resource": "${aws_sns_topic.eventbridge_sns.arn}",
-      "Condition": {
-          "IpAddress": {
-            "aws:SourceIp": "${var.user_ip}/32"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "snspolicy"
+    Statement = [
+      {
+        Sid       = "First"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = ["sns:Subscribe", "sns:Publish"]
+        Resource  = aws_sns_topic.eventbridge_sns.arn
+        Condition = {
+          IpAddress = {
+            "aws:SourceIp" = "${var.user_ip}/32"
           }
         }
-    }
-  ]
+      }
+    ]
+  })
 }
-POLICY
-}
+
 
 
 resource "aws_sns_topic" "eventbridge_sns" {
